@@ -5,7 +5,10 @@
     "build": "next build",
     "start": "next start",
     "test": "jest --watch",
-    "test:ci": "jest --ci"
+    "test:ci": "jest --ci",
+    "flyway:dev": "flyway -configFiles=db/config/nutrifit-dev.conf",
+    "flyway:test": "flyway -configFiles=db/config/nutrifit-test.conf",
+    "lint": "next lint"
   },
   "dependencies": {
     "@emotion/react": "^11.10.5",
@@ -20,12 +23,21 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "@testing-library/dom": "^8.19.1",
     "@testing-library/jest-dom": "5.16.4",
-    "@testing-library/react": "13.2.0",
-    "@testing-library/user-event": "14.2.0",
+    "@testing-library/react": "^13.2.0",
+    "@testing-library/user-event": "^14.2.0",
+    "@types/jest": "^29.2.5",
     "@types/react": "18.0.9",
+    "@typescript-eslint/eslint-plugin": "^5.48.0",
+    "@typescript-eslint/parser": "^5.48.0",
+    "eslint": "^8.31.0",
+    "eslint-config-next": "^13.1.1",
+    "eslint-plugin-react": "^7.31.11",
+    "eslint-plugin-react-hooks": "^4.3.0",
+    "eslint-plugin-testing-library": "^5.9.1",
     "jest": "28.1.0",
     "jest-environment-jsdom": "28.1.0",
-    "typescript": "4.6.4"
+    "typescript": "^4.9.4"
   }
 }
