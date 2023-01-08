@@ -290,7 +290,9 @@ describe('Form Validation', () => {
   });
 });
 describe('on form submit', () => {
-  render(<Signup></Signup>);
+  beforeEach(() => {
+    render(<Signup></Signup>);
+  });
   it('redirects to \'my plans\' page', async () => {
 
     const emailInput = screen.getByRole('textbox', {
