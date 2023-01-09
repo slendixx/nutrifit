@@ -45,7 +45,17 @@ export default function Signup() {
     watch,
     formState
   } = useForm<Inputs>(
-
+//must provide default values otherwise a warning will be thrown
+    //source: https://github.com/react-hook-form/documentation/issues/132
+    {
+      defaultValues: {
+        email: '',
+        firstName: '',
+        lastName: '',
+        password: '',
+        confirmPassword: ''
+      }
+    }
   );
 
   const onSubmit: SubmitHandler<Inputs> = async (input) => {
