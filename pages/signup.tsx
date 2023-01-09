@@ -13,77 +13,67 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import Stack from '@mui/material/Stack';
 import Container from '@mui/material/Container';
+import CircularProgress from '@mui/material/CircularProgress';
+import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import { useRouter } from 'next/router';
+import axios from 'axios';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 const LOGO_WIDTH = 178;
 const LOGO_HEIGHT = 99;
 
+type Inputs = {
+  email: string,
+  firstName: string,
+  lastName: string,
+  password: string,
+  confirmPassword: string
+}
 export default function Signup() {
   const theme = useTheme();
-  const smallScreen = useMediaQuery(theme.breakpoints.down('sm'));
-  const [invalidEmail, setInvalidEmail] = useState<boolean>(false);
-  const [email, setEmail] = useState<string>('');
-  const [invalidFirstName, setInvalidFirstName] = useState<boolean>(false);
-  const [firstName, setFirstName] = useState<string>('');
-  const [invalidLastName, setInvalidLastName] = useState<boolean>(false);
-  const [lastName, setLastName] = useState<string>('');
-  const [invalidPassword, setInvalidPassword] = useState<boolean>(false);
-  const [password, setPassword] = useState<string>('');
-  const [invalidConfirmPassword, setInvalidConfirmPassword] = useState<boolean>(false);
-  const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const smallDevice = useMediaQuery(theme.breakpoints.down('sm'));
+  const router = useRouter();
+  const [navMenuAnchor, setNavMenuAnchor] = useState<null | HTMLElement>(null);
+  const [showFeedback, setShowFeedback] = useState<boolean>(false);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setInvalidEmail(false);
-    setInvalidFirstName(false);
-    setInvalidLastName(false);
-    setInvalidPassword(false);
-    setInvalidConfirmPassword(false);
+  const {
+    handleSubmit,
+    control,
+    watch,
+    formState
+  } = useForm<Inputs>(
 
-    if (email.length > 100) {
-      setInvalidEmail(true);
-      return;
-    }
-    if (firstName.length > 30) {
-      setInvalidFirstName(true);
-      return;
-    }
-    if (lastName.length > 30) {
-      setInvalidLastName(true);
-      return;
-    }
-    if (password.length < 8) {
-      setInvalidPassword(true);
-      return;
-    }
-    if (password !== confirmPassword) {
-      setInvalidConfirmPassword(true);
-      return;
-    }
-    //send form input
-    // try {
-    //
-    //   const response = await fetch('/api/signup', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json'
-    //     },
-    //     body: JSON.stringify({
-    //         email,
-    //         firstName,
-    //         lastName,
-    //         password,
-    //         confirmPassword
-    //       }
-    //     )
-    //   });
-    //   if (!response.ok) {
-    //     throw new Error(response.statusText);
-    //   }
-    // } catch (error) {
-    //
-    // }
+  );
 
+  const onSubmit: SubmitHandler<Inputs> = async (input) => {
+    try {
+      await axios.post(process.env.API_HOST + '/api/signup', {
+        email: input.email,
+        firstName: input.firstName,
+        lastName: input.lastName,
+        password: input.password,
+      });
+
+      await router.push('/plans');
+    } catch (error) {
+      setShowFeedback(true);
+    }
+  };
+
+  function handleOpenNavMenu(event: React.MouseEvent<HTMLElement>) {
+    setNavMenuAnchor(event.currentTarget);
   }
+
+  const handleCloseFeedback = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setShowFeedback(false);
+  };
 
   return (
     <>
@@ -91,13 +81,39 @@ export default function Signup() {
         <Container maxWidth="xl">
           <Toolbar disableGutters>
             {
-              smallScreen ? (
+              smallDevice ? (
                 <>
-                  <IconButton>
+                  <IconButton
+                    onClick={handleOpenNavMenu}
+                  >
                     <MenuIcon
                       sx={{ color: 'primary.contrastText' }}
                     />
                   </IconButton>
+                  <Menu
+                    id="navMenu"
+                    anchorEl={navMenuAnchor}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'left',
+                    }}
+                    keepMounted
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'left'
+                    }}
+                    open={!!navMenuAnchor}
+                    onClose={() => setNavMenuAnchor(null)}
+                  >
+                    <MenuItem>
+                      <Button
+                        href="/signup"
+                        sx={{ color: 'text.primary' }}
+                      >
+                        Sign up
+                      </Button>
+                    </MenuItem>
+                  </Menu>
                   <Box
                     flexGrow={1}
                     display={'flex'}
@@ -124,8 +140,8 @@ export default function Signup() {
                   >
                     <Link
                       href={'/'}
-
                     >
+
                       <Image
                         src="/images/nutrifit-logo-sm-no-bg.png"
                         width={LOGO_WIDTH * 0.5}
@@ -152,65 +168,169 @@ export default function Signup() {
           </Toolbar>
         </Container>
       </AppBar>
-
-      <Typography variant="h3" textAlign={'center'} fontWeight="bold" mt={2}>Sign up</Typography>
+      <Typography variant="h3" textAlign={'center'} fontWeight="bold" mt={2}>
+        Sign up
+      </Typography>
+      {
+        formState.isSubmitting &&
+        <CircularProgress/>
+      }
       <Container
         maxWidth="xs">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <Stack>
+            <Controller
+              name="email"
+              control={control}
+              rules={{
+                required: 'Email is required',
+                maxLength: {
+                  value: 100,
+                  message: 'Email must be less than 100 characters long'
+                },
+                //use a Regex to validate user typed a valid email
+                validate: value => new RegExp(/[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g).test(value) || 'Must be a valid email'
+              }} render={
+              ({
+                field: {
+                  onChange,
+                  value
+                },
+                fieldState: { error }
+              }) =>
+                <TextField sx={{ mt: 2 }} variant="standard" id="email" label="Email"
+                           fullWidth
+                           value={value}
+                           error={!!error}
+                           onChange={onChange}
+                           helperText={error ? error.message : null}
+                />
+            }/>
+            <Controller
+              control={control}
+              name="firstName"
+              rules={
+                {
+                  required: 'First name is required',
+                  maxLength: {
+                    value: 30,
+                    message: 'First name must be less than 30 characters long'
+                  }
+                }
+              }
+              render={(
+                {
+                  field: {
+                    onChange,
+                    value
+                  },
+                  fieldState: { error }
 
-            <TextField sx={{ mt: 2 }} variant="standard" required id="email" label="Email"
-                       fullWidth
-                       type="email"
-                       value={email}
-                       onChange={(event) => {
-                         setEmail(event.target.value);
-                       }}
-                       error={invalidEmail}
-                       helperText={invalidEmail ? 'Email must be less than 100 characters long' : ''}/>
-            <TextField sx={{ mt: 2 }} variant="standard" required id="firstName"
-                       label="First Name" fullWidth
-                       value={firstName}
-                       onChange={(event) => {
-                         setFirstName(event.target.value);
-                       }}
-                       error={invalidFirstName}
-                       helperText={invalidFirstName ? 'First name must be less than 30 characters long' : ''}/>
-            <TextField sx={{ mt: 2 }} variant="standard" required id="lastName" label="Last Name"
-                       fullWidth
-                       value={lastName}
-                       onChange={(event) => {
-                         setLastName(event.target.value);
-                       }}
-                       error={invalidLastName}
-                       helperText={invalidLastName ? 'Last name must be less than 30 characters long' : ''}/>
-            <TextField sx={{ mt: 2 }} variant="standard"
-                       required
-                       id="password"
-                       label="Password"
-                       type="password"
-                       fullWidth
-                       value={password}
-                       onChange={(event) => {
-                         setPassword(event.target.value);
-                       }}
-                       error={invalidPassword}
-                       helperText={invalidPassword ? 'Password must be at least 8 characters long' : ''}
+                }
+              ) =>
+                <TextField sx={{ mt: 2 }} variant="standard" id="firstName"
+                           label="First Name" fullWidth
+                           value={value}
+                           onChange={onChange}
+                           error={!!error}
+                           helperText={error ? error.message : null}/>
+
+              }
             />
-            <TextField sx={{ mt: 2 }}
-                       required
-                       id="confirmPassword"
-                       label="Confirm Password"
-                       type="password" variant="standard"
-                       fullWidth
-                       value={confirmPassword}
-                       onChange={(event) => {
-                         setConfirmPassword(event.target.value);
-                       }}
-                       error={invalidConfirmPassword}
-                       helperText={invalidConfirmPassword ? 'Passwords don\'t match' : ''}
+
+            <Controller
+              control={control}
+              name={'lastName'}
+              rules={{
+                required: 'Last name is required',
+                maxLength: {
+                  value: 30,
+                  message: 'Last name must be less than 30 characters long'
+                }
+              }}
+              render={(
+                {
+                  field: {
+                    onChange,
+                    value
+                  },
+                  fieldState: { error }
+                }
+              ) =>
+                <TextField sx={{ mt: 2 }} variant="standard" id="lastName"
+                           label="Last Name"
+                           fullWidth
+                           value={value}
+                           onChange={onChange}
+                           error={!!error}
+                           helperText={error ? error.message : null}/>
+
+              }
             />
-            <Box display="flex" justifyContent={smallScreen ? 'center' : 'end'}>
+            <Controller
+              control={control}
+              name={'password'}
+              rules={{
+                required: 'Password is required',
+                minLength: {
+                  value: 8,
+                  message: 'Password must be at least 8 characters long'
+                }
+              }}
+              render={(
+                {
+                  field: {
+                    onChange,
+                    value
+                  },
+                  fieldState: { error }
+                }
+              ) =>
+                <TextField sx={{ mt: 2 }} variant="standard"
+                           id="password"
+                           label="Password"
+                           type="password"
+                           fullWidth
+                           value={value}
+                           onChange={onChange}
+                           error={!!error}
+                           helperText={error ? error.message : null}
+
+                />
+              }
+            />
+
+            <Controller
+              control={control}
+              name={'confirmPassword'}
+              rules={{
+                validate: value => value === watch('password') || 'Passwords don\'t match'
+              }}
+              render={(
+                {
+                  field: {
+                    onChange,
+                    value
+                  },
+                  fieldState: { error }
+                }
+              ) =>
+                <TextField sx={{ mt: 2 }}
+                           id="confirmPassword"
+                           label="Confirm Password"
+                           type="password" variant="standard"
+                           fullWidth
+                           value={value}
+                           onChange={onChange}
+                           error={!!error}
+
+                           helperText={error ? error.message : null}
+
+                />
+
+              }
+            />
+            <Box display="flex" justifyContent={smallDevice ? 'center' : 'end'}>
               <Button sx={{ mt: 4 }} variant="outlined" type="submit">
                 Sign Up
               </Button>
@@ -218,6 +338,12 @@ export default function Signup() {
           </Stack>
         </form>
       </Container>
+      <Snackbar open={showFeedback} autoHideDuration={6000} onClose={handleCloseFeedback}>
+        <Alert onClose={handleCloseFeedback} severity={'error'} sx={{ width: '100%' }}
+               variant="outlined">
+          An error occurred during your request
+        </Alert>
+      </Snackbar>
     </>
   );
 }
