@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
+import logo from "../public/images/nutrifit-logo-no-bg.png";
 import Link from 'next/link';
 import MenuIcon from '@mui/icons-material/Menu';
 import IconButton from '@mui/material/IconButton';
@@ -153,7 +154,7 @@ export default function Signup() {
                     >
 
                       <Image
-                        src="/images/nutrifit-logo-sm-no-bg.png"
+                        src={logo}
                         width={LOGO_WIDTH * 0.5}
                         height={LOGO_HEIGHT * 0.5}
                         alt="nutrifit logo"

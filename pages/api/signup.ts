@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
+import {formatPassword} from "@/lib/formatting";
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
@@ -12,6 +13,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(400)
       .json({ message: error.message });
   }
+  const signupData:SignupData = req.body;
+  signupData.password =  formatPassword(signupData.password)
 
   return res.status(200)
     .json({ message: 'hi from API' });

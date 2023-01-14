@@ -3,8 +3,10 @@ import { NextRouter } from 'next/router';
 import { RouterContext } from 'next/dist/shared/lib/router-context';
 import user from '@testing-library/user-event';
 import Signup from '../../pages/signup';
-import { server } from '../mocks/msw/server';
+
+import { server } from '../__mocks__/msw/server';
 import { rest } from 'msw';
+
 
 function setupComponent() {
   const mockRouter = createMockRouter({});

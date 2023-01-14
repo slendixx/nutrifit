@@ -1,7 +1,14 @@
+import {formatPassword} from "@/lib/formatting";
 import httpMocks from 'node-mocks-http';
 import routeHandler, { SignupData } from '@/pages/api/signup';
-
+//Mock password formater method
+jest.mock("@/lib/formatting",()=>{
+  return {
+    formatPassword:jest.fn()
+  }
+})
 const API_URL = process.env.NEXT_PUBLIC_API_HOST + '/api/signup';
+
 describe('on POST request', () => {
   it('returns 400 and a message on invalid email', () => {
 
@@ -228,9 +235,35 @@ describe('on POST request', () => {
         message: 'password can\'t be empty'
       });
   });
+
+  it('formats password properly',()=>{
+    const formatPasswordMock = formatPassword as jest.MockedFunction<any>
+    formatPasswordMock.mockImplementation(()=>{
+      return new Array(256).join("");
+    })
+    const mockData = mockSignupData();
+    const {
+      req,
+      res
+    } = mockReqRes(
+      'POST',
+      mockData
+    );
+    routeHandler(req, res);
+    expect(formatPasswordMock).toHaveBeenCalled();
+    expect(formatPasswordMock).toHaveBeenCalledWith(mockData.password);
+  });
+  /*
+  * REFORMAT ALL THIS CODE INTO A PROPER RESTFUL ROUTE
+  * /api/nutritionists on POST
+  * perhaps
+  * */
+  it("hashes password",()=>{
+    expect(bcrypt.compare(hashedPassword, password)).toBe(true);
+  })
+  it.todo("creates new user")
 });
 
-it.todo('password is truncated after 256 characters');
 
 function mockReqRes(method: 'POST' | 'GET', body: any) {
   return {
