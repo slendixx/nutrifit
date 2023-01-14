@@ -23,6 +23,7 @@
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-hook-form": "^7.41.5",
+    "tsconfig-paths-jest": "^0.0.1",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
