@@ -1,4 +1,4 @@
-// src/mocks/handlers.js
+// src/__mocks__/handlers.js
 import { rest } from 'msw';
 
 export const handlers = [
