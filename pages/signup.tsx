@@ -60,7 +60,7 @@ export default function Signup() {
 
   const onSubmit: SubmitHandler<Inputs> = async (input) => {
     try {
-      await axios.post(process.env.API_HOST + '/api/signup', {
+      await axios.post(process.env.NEXT_PUBLIC_API_HOST + '/api/signup', {
         email: input.email,
         firstName: input.firstName,
         lastName: input.lastName,
@@ -139,7 +139,7 @@ export default function Signup() {
                         width={LOGO_WIDTH * 0.5}
                         height={LOGO_HEIGHT * 0.5}
                         alt="nutrifit logo"
-                      ></Image>
+                      />
                     </Link>
                   </Box>
                 </>

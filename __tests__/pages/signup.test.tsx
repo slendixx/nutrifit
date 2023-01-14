@@ -342,9 +342,11 @@ it('shows an alert on error during form submit ', async () => {
   setupComponent();
 
   //mock an API response with any error HTTP  status code
-  server.use(rest.post(process.env.API_HOST + '/api/signup', (req, res, context) => {
-    return res.once(context.status(500));
-  }));
+  server.use(rest.post(
+    process.env.NEXT_PUBLIC_API_HOST + '/api/signup',
+    (req, res, context) => {
+      return res.once(context.status(500));
+    }));
 
   //fill & submit form
   await fillForm();
