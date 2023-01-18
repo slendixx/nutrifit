@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import Image from 'next/image';
 import logo from "../public/images/nutrifit-logo-no-bg.png";
 import Link from 'next/link';
@@ -11,12 +11,12 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Box from '@mui/material/Box';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme } from '@mui/material/styles';
+import {useTheme} from '@mui/material/styles';
 import Stack from '@mui/material/Stack';
 import Container from '@mui/material/Container';
 import CircularProgress from '@mui/material/CircularProgress';
-import { useForm, SubmitHandler, Controller } from 'react-hook-form';
-import { useRouter } from 'next/router';
+import {useForm, SubmitHandler, Controller} from 'react-hook-form';
+import {useRouter} from 'next/router';
 import axios from 'axios';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -39,6 +39,7 @@ export default function Signup() {
   const router = useRouter();
   const [navMenuAnchor, setNavMenuAnchor] = useState<null | HTMLElement>(null);
   const [showFeedback, setShowFeedback] = useState<boolean>(false);
+  const [feedbackMessage, setFeedbackMessage] = useState<string>("");
 
   const {
     handleSubmit,
@@ -60,6 +61,8 @@ export default function Signup() {
   );
 
   const onSubmit: SubmitHandler<Inputs> = async (input) => {
+    setShowFeedback(false);
+    setFeedbackMessage("");
     try {
       await axios.post(process.env.NEXT_PUBLIC_API_HOST + '/api/signup', {
         email: input.email,
@@ -69,7 +72,12 @@ export default function Signup() {
       });
 
       await router.push('/plans');
+
     } catch (error) {
+      console.log(error)
+      if (axios.isAxiosError(error)) {
+        setFeedbackMessage(error?.response?.data.message || "There was an error during your request");
+      }
       setShowFeedback(true);
     }
   };
@@ -98,7 +106,7 @@ export default function Signup() {
                     onClick={handleOpenNavMenu}
                   >
                     <MenuIcon
-                      sx={{ color: 'primary.contrastText' }}
+                      sx={{color: 'primary.contrastText'}}
                     />
                   </IconButton>
                   <Menu
@@ -119,7 +127,7 @@ export default function Signup() {
                     <MenuItem>
                       <Button
                         href="/signup"
-                        sx={{ color: 'text.primary' }}
+                        sx={{color: 'text.primary'}}
                       >
                         Sign up
                       </Button>
@@ -133,7 +141,7 @@ export default function Signup() {
                   >
                     <Link
                       href={'/'}
-                      style={{ transform: 'translateX(-25%)' }}
+                      style={{transform: 'translateX(-25%)'}}
                     >
                       <Image
                         src="/images/nutrifit-logo-no-bg.png"
@@ -168,7 +176,7 @@ export default function Signup() {
                   >
                     <Button
                       href="/signup"
-                      sx={{ color: 'primary.contrastText' }}
+                      sx={{color: 'primary.contrastText'}}
                     >
                       Sign up
                     </Button>
@@ -184,7 +192,9 @@ export default function Signup() {
       </Typography>
       {
         formState.isSubmitting &&
-        <CircularProgress/>
+          <Container sx={{display: "flex", justifyContent: "center", mt: 2}}>
+              <CircularProgress/>
+          </Container>
       }
       <Container
         maxWidth="xs">
@@ -203,13 +213,13 @@ export default function Signup() {
                 validate: value => new RegExp(/[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g).test(value) || 'Must be a valid email'
               }} render={
               ({
-                field: {
-                  onChange,
-                  value
-                },
-                fieldState: { error }
-              }) =>
-                <TextField sx={{ mt: 2 }} variant="standard" id="email" label="Email"
+                 field: {
+                   onChange,
+                   value
+                 },
+                 fieldState: {error}
+               }) =>
+                <TextField sx={{mt: 2}} variant="standard" id="email" label="Email"
                            fullWidth
                            value={value}
                            error={!!error}
@@ -235,11 +245,11 @@ export default function Signup() {
                     onChange,
                     value
                   },
-                  fieldState: { error }
+                  fieldState: {error}
 
                 }
               ) =>
-                <TextField sx={{ mt: 2 }} variant="standard" id="firstName"
+                <TextField sx={{mt: 2}} variant="standard" id="firstName"
                            label="First Name" fullWidth
                            value={value}
                            onChange={onChange}
@@ -265,10 +275,10 @@ export default function Signup() {
                     onChange,
                     value
                   },
-                  fieldState: { error }
+                  fieldState: {error}
                 }
               ) =>
-                <TextField sx={{ mt: 2 }} variant="standard" id="lastName"
+                <TextField sx={{mt: 2}} variant="standard" id="lastName"
                            label="Last Name"
                            fullWidth
                            value={value}
@@ -294,10 +304,10 @@ export default function Signup() {
                     onChange,
                     value
                   },
-                  fieldState: { error }
+                  fieldState: {error}
                 }
               ) =>
-                <TextField sx={{ mt: 2 }} variant="standard"
+                <TextField sx={{mt: 2}} variant="standard"
                            id="password"
                            label="Password"
                            type="password"
@@ -323,10 +333,10 @@ export default function Signup() {
                     onChange,
                     value
                   },
-                  fieldState: { error }
+                  fieldState: {error}
                 }
               ) =>
-                <TextField sx={{ mt: 2 }}
+                <TextField sx={{mt: 2}}
                            id="confirmPassword"
                            label="Confirm Password"
                            type="password" variant="standard"
@@ -342,7 +352,7 @@ export default function Signup() {
               }
             />
             <Box display="flex" justifyContent={smallDevice ? 'center' : 'end'}>
-              <Button sx={{ mt: 4 }} variant="outlined" type="submit">
+              <Button sx={{mt: 4}} variant="outlined" type="submit">
                 Sign Up
               </Button>
             </Box>
@@ -350,9 +360,9 @@ export default function Signup() {
         </form>
       </Container>
       <Snackbar open={showFeedback} autoHideDuration={6000} onClose={handleCloseFeedback}>
-        <Alert onClose={handleCloseFeedback} severity={'error'} sx={{ width: '100%' }}
+        <Alert onClose={handleCloseFeedback} severity={'error'} sx={{width: '100%'}}
                variant="outlined">
-          An error occurred during your request
+          {feedbackMessage}
         </Alert>
       </Snackbar>
     </>

@@ -1,11 +1,11 @@
-import { screen, render, waitFor } from '@testing-library/react';
-import { NextRouter } from 'next/router';
-import { RouterContext } from 'next/dist/shared/lib/router-context';
+import {screen, render, waitFor} from '@testing-library/react';
+import {NextRouter} from 'next/router';
+import {RouterContext} from 'next/dist/shared/lib/router-context';
 import user from '@testing-library/user-event';
 import Signup from '../../pages/signup';
 
-import { server } from '../__mocks__/msw/server';
-import { rest } from 'msw';
+import {server} from '../__mocks__/msw/server';
+import {rest} from 'msw';
 
 
 function setupComponent() {
@@ -339,7 +339,7 @@ it('on form submit shows progress bar', async () => {
 
 });
 
-it('shows an alert on error during form submit ', async () => {
+it('shows an alert with a message if an error occurs during form submit ', async () => {
 
   setupComponent();
 
@@ -347,7 +347,7 @@ it('shows an alert on error during form submit ', async () => {
   server.use(rest.post(
     process.env.NEXT_PUBLIC_API_HOST + '/api/signup',
     (req, res, context) => {
-      return res.once(context.status(500));
+      return res.once(context.status(500), context.json({message: "something happened"}));
     }));
 
   //fill & submit form
@@ -357,7 +357,7 @@ it('shows an alert on error during form submit ', async () => {
   });
   await user.click(submitButton);
 
-  const feedback = await screen.findByText(/an error occurred during your request/i);
+  const feedback = await screen.findByText(/something happened/i);
   expect(feedback)
     .toBeInTheDocument();
 });

@@ -1,7 +1,11 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import {formatPassword} from "@/lib/formatting";
+import {NextApiRequest, NextApiResponse} from 'next';
+import {truncatePassword} from "@/lib/formatting";
+import {hash} from "bcrypt";
+import {calculateHashCost} from "@/lib/security";
+import dbConnection from "@/config/dbConnection";
+import {OkPacket} from "mysql2"
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   try {
     isSignupData(req.body);
@@ -11,13 +15,27 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     validatePassword(req.body);
   } catch (error) {
     return res.status(400)
-      .json({ message: error.message });
+      .json({message: error.message});
   }
-  const signupData:SignupData = req.body;
-  signupData.password =  formatPassword(signupData.password)
+  const signupData: SignupData = req.body;
+  //format password
+  signupData.password = truncatePassword(signupData.password);
+  //hash password
+  const hashCost = await calculateHashCost();
+  const hashedPassword = await hash(signupData.password, hashCost);
 
-  return res.status(200)
-    .json({ message: 'hi from API' });
+  try {
+    await dbConnection.query<OkPacket>("INSERT INTO nutritionist (email, first_name, last_name, password) VALUES (?,?,?,?);", [signupData.email, signupData.firstName, signupData.lastName, hashedPassword]);
+  } catch (error) {
+    if (/duplicate entry .* for key 'nutritionist.email_unique'/i.test(error.message)) {
+      return res.status(400)
+        .json({message: "An account with the same email already exists"});
+    }
+    return res.status(400)
+      .json({message: error.message});
+  }
+  return res.status(201)
+    .json({message: 'nutritionist account created'});
 }
 export type SignupData = {
   email: string;
