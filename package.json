@@ -6,8 +6,8 @@
     "start": "next start",
     "test": "jest --watch",
     "test:ci": "jest --ci",
-    "flyway:dev": "flyway -configFiles=db/config/nutrifit-dev.conf",
-    "flyway:test": "flyway -configFiles=db/config/nutrifit-test.conf",
+    "flyway:dev": "flyway -configFiles=db/config/dev.conf",
+    "flyway:test": "flyway -configFiles=db/config/test.conf",
     "lint": "next lint"
   },
   "dependencies": {
