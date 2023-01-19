@@ -74,7 +74,6 @@ export default function Signup() {
       await router.push('/plans');
 
     } catch (error) {
-      console.log(error)
       if (axios.isAxiosError(error)) {
         setFeedbackMessage(error?.response?.data.message || "There was an error during your request");
       }
