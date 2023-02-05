@@ -5,6 +5,7 @@ import {calculateHashCost} from "@/lib/security";
 import dbConnection from "@/config/dbConnection";
 import {OkPacket} from "mysql2"
 
+//TODO reject other request methods that aren't POST
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   try {
@@ -18,7 +19,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .json({message: error.message});
   }
   const signupData: SignupData = req.body;
-  //format password
+  //formatting
+  signupData.firstName = signupData.firstName.trim();
+  signupData.lastName = signupData.lastName.trim();
+  signupData.email = signupData.email.trim();
   signupData.password = truncatePassword(signupData.password);
   //hash password
   const hashCost = await calculateHashCost();
@@ -44,6 +48,7 @@ export type SignupData = {
   password: string;
 }
 
+//TODO move to user model
 function isSignupData(object): asserts object is SignupData {
   if (!('email' in object)) throw new Error('no email was provided');
   if (!('firstName' in object)) throw new Error('no first name was provided');

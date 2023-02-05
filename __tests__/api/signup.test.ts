@@ -302,8 +302,39 @@ describe('on POST request', () => {
     })
   })
   describe("valid requests", () => {
+    it("first name, last name and email are trimmed", async () => {
 
+      const mockData = {
+        firstName: '    brenda    ',
+        lastName: '    jacobs    ',
+        email: '    brendajacobs@email.com    ',
+        password: 'brenda123'
+      }
 
+      const {
+        req,
+        res
+      } = mockReqRes(
+        'POST',
+        mockData
+      );
+      await routeHandler(req, res);
+
+      const sql = "" +
+        "SELECT " +
+        "email, " +
+        "first_name as firstName, " +
+        "last_name as lastName, " +
+        "password " +
+        "FROM nutritionist " +
+        "WHERE first_name = ?;"
+
+      const [rows, _] = await dbConnection.query<RowDataPacket[]>(sql, mockData.firstName);
+
+      expect(rows[0].firstName).toBe('brenda');
+      expect(rows[0].lastName).toBe('jacobs');
+      expect(rows[0].email).toBe('brendajacobs@email.com');
+    })
     it('password is properly formatted and hashed', async () => {
       const mockData = mockSignupData();
       const {
