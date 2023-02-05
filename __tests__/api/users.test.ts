@@ -1,5 +1,5 @@
 import httpMocks from 'node-mocks-http';
-import routeHandler from '@/pages/api/signup';
+import routeHandler from '@/pages/api/users/index';
 import dbConnection from "@/config/dbConnection"
 
 jest.mock("@/lib/api/signup", () => {
@@ -43,7 +43,7 @@ afterEach(async () => {
   await dbConnection.query("TRUNCATE TABLE nutritionist;");
 })
 import {calculateHashCost} from "@/lib/security";
-import {SignupData, truncatePassword} from "@/lib/api/signup";
+import {SignupData, truncatePassword} from "@/lib/api/users";
 
 afterAll(async () => {
   await dbConnection.query("SET FOREIGN_KEY_CHECKS = 1");

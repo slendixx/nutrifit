@@ -49,7 +49,7 @@ describe('header', () => {
     expect(signUpLink)
       .toBeInTheDocument();
     expect(signUpLink.getAttribute('href'))
-      .toBe('/signup.ts');
+      .toBe('/signup');
   });
   it('renders heading', () => {
     const heading = screen.getByRole('heading', {

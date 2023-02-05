@@ -1,5 +1,5 @@
 import {generateLengthNString} from "@/__tests__/utils";
-import {SignupData, trimNameAndEmail, truncatePassword} from "@/lib/api/signup";
+import {SignupData, trimNameAndEmail, truncatePassword} from "@/lib/api/users";
 
 describe("truncatePassword()", () => {
 
