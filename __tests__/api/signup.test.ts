@@ -1,12 +1,13 @@
 import httpMocks from 'node-mocks-http';
-import routeHandler, {SignupData} from '@/pages/api/signup';
-//Mock password formatter method from formatting module
-import {truncatePassword} from "@/lib/formatting";
+import routeHandler from '@/pages/api/signup';
 import dbConnection from "@/config/dbConnection"
 
-jest.mock("@/lib/formatting", () => {
+jest.mock("@/lib/api/signup", () => {
+  //mock only the truncatePassword method from this module
+  const actualLib = jest.requireActual("@/lib/api/signup");
   return {
-    truncatePassword: jest.fn()
+    ...actualLib,
+    truncatePassword: jest.fn(),
   }
 })
 const API_URL = process.env.NEXT_PUBLIC_API_HOST + '/api/signup';
@@ -42,6 +43,7 @@ afterEach(async () => {
   await dbConnection.query("TRUNCATE TABLE nutritionist;");
 })
 import {calculateHashCost} from "@/lib/security";
+import {SignupData, truncatePassword} from "@/lib/api/signup";
 
 afterAll(async () => {
   await dbConnection.query("SET FOREIGN_KEY_CHECKS = 1");
@@ -295,10 +297,8 @@ describe('on POST request', () => {
 
       expect(res.statusCode)
         .toBe(400);
-      expect(res._getJSONData())
-        .toEqual({
-          message: 'duplicate email'
-        });
+      expect(res._getJSONData().message)
+        .toMatch(/an account with the same email already exists/i);
     })
   })
   describe("valid requests", () => {
@@ -345,7 +345,7 @@ describe('on POST request', () => {
         mockData
       );
       await routeHandler(req, res);
-      expect(truncatePassword).toHaveBeenCalledWith(mockData.password);
+      expect(truncatePassword).toHaveBeenCalledWith(mockData);
       expect(calculateHashCost).toHaveBeenCalled();
       expect(hash).toHaveBeenCalledWith(mockData.password, mockHashCost);
     });
